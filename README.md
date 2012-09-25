@@ -5,7 +5,7 @@ Advanced Database Systems - Group 08
 
 Database settings
 -----------------
-Database: group08
-User: ads
-Password: password
-Table: dataset_1
+Database: group08  
+User: ads  
+Password: password  
+Table: dataset_1  
