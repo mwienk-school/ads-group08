@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -166,6 +167,16 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 				factor < ds_factor/2 || factor > ds_factor*2 ){
 			System.out.print("update with start, extent, factor, querytime: "+
 					start+","+extent+","+factor);
+			try {
+				String insertQuery = "insert into factors (factor) values (?)";
+				PreparedStatement insertStatement = con.prepareStatement(insertQuery);
+				insertStatement.setLong(1, factor);
+				insertStatement.executeUpdate();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			this.data.clear();			
 			// load the data
 			Connection con = getConnection();
