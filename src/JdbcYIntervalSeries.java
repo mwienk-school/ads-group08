@@ -212,10 +212,10 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	 * @param factor
 	 * @return
 	 */
-	public String getAggregationTableName(long extend) {
+	public String getAggregationTableName(long extent) {
 		int highestLevel = 1;
 		for(Map.Entry<Integer, Integer> entry : aggregationLevels.entrySet()) {
-			if(highestLevel < entry.getKey() && extend > entry.getValue()) highestLevel = entry.getKey();
+			if(highestLevel < entry.getKey() && extent > entry.getValue()) highestLevel = entry.getKey();
 		}
 		if(highestLevel > 1) return "dataset_ag_" + highestLevel;
 		return null;
@@ -228,8 +228,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	 */
 	public void update(long start, long extent) {
 		// Decide which table to use
-		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
-		String aggregationTable = this.getAggregationTableName(factor);
+		String aggregationTable = this.getAggregationTableName(extent);
 		System.out.println("Using table: " + aggregationTable);
 
 		// Query the table
