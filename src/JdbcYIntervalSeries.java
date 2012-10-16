@@ -237,9 +237,9 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 		if(aggregationTable != null) {
 			// Aggregation is available, use that table
 			query = "SELECT " + xAttribute + " as timed," +
-						yAttribute + "_AVG as average," +
-						yAttribute + "_MIN as minimum," + 
-						yAttribute + "_MAX as maximum " +
+						"AVG(" + yAttribute + "_AVG) as average," +
+						"MIN(" + yAttribute + "_MIN) as minimum," + 
+						"MAX(" + yAttribute + "_MAX) as maximum " +
 					"FROM " + aggregationTable + " " + 
 					"WHERE " + 
 						xAttribute + " >= " + (start - extent) + " AND " + 
