@@ -6,7 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -57,7 +59,16 @@ public class GraphGui extends ApplicationFrame{
 					"PEGEL",
 					"dataset_1",
 					null);
-			timeseries.setUpAggregation(new int[]{1,2,4,8,16});
+			Map<Integer,Integer> levels = new HashMap<Integer,Integer>();
+			levels.put(2,     500000);
+			levels.put(4,    1000000);
+			levels.put(8,    2500000);
+			levels.put(16,  50000000);
+			levels.put(32,  75000000);
+			levels.put(64, 100000000);
+			levels.put(128,150000000);
+			levels.put(256,200000000);
+			timeseries.setUpAggregation(levels);
 			Range range = timeseries.getDomainRange();
 			timeseries.update((new Double(range.getLowerBound())).longValue(), (new Double(range.getLength())).longValue());
 			timeseriescollection.addSeries(timeseries);

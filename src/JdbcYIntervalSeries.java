@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Map;
 
 import org.jfree.data.Range;
 import org.jfree.data.xy.YIntervalSeries;
@@ -22,9 +22,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	private String yAttribute;
 	private String tableName;
 	private String constraint;
-	private double ds_start = 0;
-	private double ds_extent = 0;
-	private int[] aggregationLevels;
+	private Map<Integer,Integer> aggregationLevels;
 	ArrayList<Integer> odd = new ArrayList<Integer>();
 
 	protected int MAX_RESOLUTION = 100;
@@ -137,10 +135,9 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	 * Setup the aggregation levels supplied by the array
 	 * @param levels
 	 */
-	public void setUpAggregation(int[] levels) {
+	public void setUpAggregation(Map<Integer,Integer> levels) {
 		aggregationLevels = levels;
-		Arrays.sort(aggregationLevels);
-		for(int i : levels) {
+		for(int i : aggregationLevels.keySet()) {
 			setUpAggregationTable(i, true);
 		}
 	}
@@ -215,15 +212,20 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	 * @param factor
 	 * @return
 	 */
-	public String getAggregationTableName(long factor) {
-		// aggregationLevels is sorted, loop the reversed array
-		for(int i = aggregationLevels.length - 1; i >= 0; i--) {
-			if(factor % aggregationLevels[i] == 0 && aggregationLevels[i] != 1) return "dataset_ag_" + aggregationLevels[i];
+	public String getAggregationTableName(long extend) {
+		int highestLevel = 1;
+		for(Map.Entry<Integer, Integer> entry : aggregationLevels.entrySet()) {
+			if(highestLevel < entry.getKey() && extend > entry.getValue()) highestLevel = entry.getKey();
 		}
+		if(highestLevel > 1) return "dataset_ag_" + highestLevel;
 		return null;
 	}
 	
-	
+	/**
+	 * Update the graph
+	 * @param start
+	 * @param extent
+	 */
 	public void update(long start, long extent) {
 		// Decide which table to use
 		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
