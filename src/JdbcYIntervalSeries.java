@@ -179,7 +179,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 							   "MIN(" + yAttribute + "), " +
 							   "MAX(" + yAttribute + ") " +
 						"FROM " + tableName + " " +
-						"GROUP BY " + xAttribute + " div " + level;
+						"GROUP BY id div " + level;
 				st.execute(query);
 				System.out.println("AGGREGATION: creation of level " + level + " finished");
 			}
