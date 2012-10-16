@@ -230,7 +230,6 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 		// Decide which table to use
 		String aggregationTable = this.getAggregationTableName(extent);
 		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
-		System.out.println("Using table: " + aggregationTable);
 
 		// Query the table
 		String query = "";
@@ -264,7 +263,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 			Statement st = con.createStatement();
 			long starttime = System.currentTimeMillis();
 			ResultSet rs = st.executeQuery(query);
-			System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + ")start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
+			System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + "): start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
 			while(rs.next()) {
 				Long timed = rs.getLong("timed");
 				Double average = rs.getDouble("average");

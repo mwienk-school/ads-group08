@@ -63,11 +63,11 @@ public class GraphGui extends ApplicationFrame{
 			levels.put(2,     500000);
 			levels.put(4,    1000000);
 			levels.put(8,    2500000);
-			levels.put(16,  50000000);
-			levels.put(32,  75000000);
-			levels.put(64, 100000000);
-			levels.put(128,150000000);
-			levels.put(256,200000000);
+			levels.put(16,   5000000);
+			levels.put(32,  10000000);
+			levels.put(64,  50000000);
+			levels.put(128,100000000);
+			levels.put(256,150000000);
 			timeseries.setUpAggregation(levels);
 			Range range = timeseries.getDomainRange();
 			timeseries.update((new Double(range.getLowerBound())).longValue(), (new Double(range.getLength())).longValue());
@@ -204,7 +204,7 @@ public class GraphGui extends ApplicationFrame{
 				// reload data set
 				YIntervalSeriesCollection col = (YIntervalSeriesCollection) xydataset;
 				for(int i=0; i<col.getSeriesCount(); i++){
-					JdbcYIntervalSeries series = (JdbcYIntervalSeries) col.getSeries(i);
+					JdbcYIntervalSeriesJaldert series = (JdbcYIntervalSeriesJaldert) col.getSeries(i);
 					series.update(valueD, extentD);
 				}
 				domainAxis.setRange(valueD, valueD+extentD);
@@ -217,7 +217,7 @@ public class GraphGui extends ApplicationFrame{
 				quantile = quantileSlider.getValue();
 				YIntervalSeriesCollection col = (YIntervalSeriesCollection) xydataset;
 				for(int i=0; i<col.getSeriesCount(); i++){
-					JdbcYIntervalSeries series = (JdbcYIntervalSeries) col.getSeries(i);
+					JdbcYIntervalSeriesJaldert series = (JdbcYIntervalSeriesJaldert) col.getSeries(i);
 					series.update(valueD, extentD);
 				}
 			} 

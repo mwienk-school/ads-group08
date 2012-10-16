@@ -32,7 +32,7 @@ public class JdbcYIntervalSeriesJaldert extends YIntervalSeries {
 	private ArrayList<Integer> gcds;
 	private HashMap<Long,Integer> counts;
 
-	public JdbcYIntervalSeries(Comparable key) {
+	public JdbcYIntervalSeriesJaldert(Comparable key) {
 		super(key);
 	}
 
@@ -40,7 +40,7 @@ public class JdbcYIntervalSeriesJaldert extends YIntervalSeries {
 	 * Creates a new dataset (initially empty) using the specified database connection.
 	 * @param con
 	 */
-	public JdbcYIntervalSeries(Comparable key, Connection con){
+	public JdbcYIntervalSeriesJaldert(Comparable key, Connection con){
 		super(key);
 		this.con=con;
 	}
@@ -54,7 +54,7 @@ public class JdbcYIntervalSeriesJaldert extends YIntervalSeries {
 	 * @param tableName
 	 * @param constraint
 	 */
-	public JdbcYIntervalSeries(Comparable key, Connection con, 
+	public JdbcYIntervalSeriesJaldert(Comparable key, Connection con, 
 			String xAttribute, String yAttribute, String tableName, String constraint){
 		super(key);
 		this.con = con;
@@ -77,7 +77,7 @@ public class JdbcYIntervalSeriesJaldert extends YIntervalSeries {
 	 * @param tableName
 	 * @param constraint
 	 */
-	public JdbcYIntervalSeries(Comparable key, String url, String driverName, String user, String password,
+	public JdbcYIntervalSeriesJaldert(Comparable key, String url, String driverName, String user, String password,
 			String xAttribute, String yAttribute, String tableName, String constraint){
 		super(key);
 		this.url = url;
@@ -210,8 +210,8 @@ public class JdbcYIntervalSeriesJaldert extends YIntervalSeries {
 						ag_level = 2;
 					}
 				
-					String table = "dataset_";
-					String query = "select "+xAttribute+", ID, avg("+yAttribute+"),min("+yAttribute+"),max("+yAttribute+") from "+table+ag_level+" where "+xAttribute+">="+(start-extent)+" and "+xAttribute+" <= "+(start+2*extent)+" group by "+xAttribute+" div "+factor;
+					String table = "dataset_ag_";
+					String query = "select "+xAttribute+", ID, avg("+yAttribute+"_AVG),min("+yAttribute+"_MIN),max("+yAttribute+"_MAX) from "+table+ag_level+" where "+xAttribute+">="+(start-extent)+" and "+xAttribute+" <= "+(start+2*extent)+" group by "+xAttribute+" div "+factor;
 					st = con.createStatement();
 					long starttime = System.currentTimeMillis();
 					ResultSet rs = st.executeQuery(query);
