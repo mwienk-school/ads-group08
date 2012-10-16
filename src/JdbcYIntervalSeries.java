@@ -229,6 +229,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	public void update(long start, long extent) {
 		// Decide which table to use
 		String aggregationTable = this.getAggregationTableName(extent);
+		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
 		System.out.println("Using table: " + aggregationTable);
 
 		// Query the table
