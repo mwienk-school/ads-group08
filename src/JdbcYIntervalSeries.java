@@ -260,6 +260,9 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 		
 		// Add the results to the graph
 		try {
+			// Flush the graph
+			this.data.clear();			
+
 			Statement st = con.createStatement();
 			long starttime = System.currentTimeMillis();
 			ResultSet rs = st.executeQuery(query);
