@@ -138,7 +138,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	public void setUpAggregation(Map<Integer,Integer> levels) {
 		aggregationLevels = levels;
 		for(int i : aggregationLevels.keySet()) {
-			setUpAggregationTable(i, true);
+			setUpAggregationTable(i, false);
 		}
 	}
 	
