@@ -149,12 +149,12 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	public void setUpAggregationTable(int level, boolean refresh) {
 		if(level < 2) return; // Don't aggregate on levels < 2
 		try {
-			System.out.println("AGGREGATION: creation of level " + level + " started");
-			Statement st;
-			st = con.createStatement();
-			
-			// Drop the existing table
 			if(!aggregationTableExists(level) || refresh) {
+				System.out.println("AGGREGATION: creation of level " + level + " started");
+				Statement st;
+				st = con.createStatement();
+			
+				// Drop the existing table
 				String query = "DROP TABLE IF EXISTS dataset_ag_" + level;
 				st.execute(query);
 			
