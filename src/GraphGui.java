@@ -204,7 +204,7 @@ public class GraphGui extends ApplicationFrame{
 				// reload data set
 				YIntervalSeriesCollection col = (YIntervalSeriesCollection) xydataset;
 				for(int i=0; i<col.getSeriesCount(); i++){
-					JdbcYIntervalSeriesJaldert series = (JdbcYIntervalSeriesJaldert) col.getSeries(i);
+					JdbcYIntervalSeries series = (JdbcYIntervalSeries) col.getSeries(i);
 					series.update(valueD, extentD);
 				}
 				domainAxis.setRange(valueD, valueD+extentD);
@@ -217,7 +217,7 @@ public class GraphGui extends ApplicationFrame{
 				quantile = quantileSlider.getValue();
 				YIntervalSeriesCollection col = (YIntervalSeriesCollection) xydataset;
 				for(int i=0; i<col.getSeriesCount(); i++){
-					JdbcYIntervalSeriesJaldert series = (JdbcYIntervalSeriesJaldert) col.getSeries(i);
+					JdbcYIntervalSeries series = (JdbcYIntervalSeries) col.getSeries(i);
 					series.update(valueD, extentD);
 				}
 			} 
