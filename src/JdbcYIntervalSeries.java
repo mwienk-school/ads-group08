@@ -132,109 +132,6 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 		}
 		return new Range(minimumItemCount, maximumItemCount);
 	}
-
-	/**
-	 * specify the start and the extent of the data
-	 * 
-	 * @param start
-	 * @param extent
-	 */
-//	public void update(long start, long extent) {
-//		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
-//		long ds_factor = (long) Math.ceil(ds_extent / MAX_RESOLUTION);
-//		if (start < ds_start || start > ds_start + ds_extent
-//				|| start + extent > ds_start + ds_extent
-//				|| factor < ds_factor / 2 || factor > ds_factor * 2) {
-//
-//			System.out.print("update with start, extent, factor, querytime: "
-//					+ start + "," + extent + "," + factor);
-//
-//			this.data.clear();
-//			Statement st;
-//			try {
-//				long res = factor % 10;
-//				factor = (res >= 5) ? factor + (10 - res) : factor - res;
-//				int table = getTable(factor);
-//				int ag = (int) ((int) (factor / table));
-//				String query = "select " + xAttribute + ",  avg(" + yAttribute
-//						+ "),min(" + yAttribute + "),max(" + yAttribute
-//						+ ") from dataset_ag_" + table + " where " + xAttribute
-//						+ ">=" + (start - extent) + " and " + xAttribute
-//						+ " <= " + (start + 2 * extent) + " group by "
-//						+ xAttribute + " div " + factor;
-//				st = con.createStatement();
-//				long starttime = System.currentTimeMillis();
-//				ResultSet rs = st.executeQuery(query);
-//				System.out.println("," + (System.currentTimeMillis() - starttime));
-//				System.out.println(query);
-//				long prevTime = 0;
-//				int j = 0;
-//				while (rs.next()) {
-//
-//					long timed = rs.getLong(1);
-//					double pegelAvg = rs.getDouble(2);
-//					double pegelLow = rs.getDouble(3);
-//					double pegelHigh = rs.getDouble(4);
-//					if (prevTime != timed) {
-//						j++;
-//						add(timed, pegelAvg, pegelLow, pegelHigh);
-//						// add(timed, pegelAvg, pegelLow, pegelHigh);
-//						// System.out.println(" "+timed_/table+" "+pegelAvg_/table+" "+
-//						// pegelLow_/table+" "+pegelHigh_/table);
-//						prevTime = timed;
-//					} else {
-//						System.out.println("removed duplicate data at timestampt " + timed);
-//					}
-//				}
-//				System.out.println("Punten: " + j);
-//			} catch (SQLException e) {
-//				e.printStackTrace();
-//			}
-//			this.ds_start = start - extent;
-//			this.ds_extent = start + 2 * extent;
-//		}
-//		this.fireSeriesChanged();
-//	}
-
-	public int getTable(long factor) {
-
-		// a ="1 2 7 13";
-		// array = a.split("\\s+");
-		// int[] array = { 100,200,300,400,500,600,700,800,900,1000};
-		int[] array = { 10, 12, 16, 20 };
-		int table = 0;
-		// long res = factor % 10;
-		// factor = (res>= 50) ? factor + (100-res) : factor - res;
-		// factor = (factor % 2 == 0) ? factor : factor + 1;
-		for (int i = array.length - 1; i >= 0; i--) {
-			try {
-
-				if (GCD(factor, array[i]) == array[i]) {
-					table = (int) array[i];
-					break;
-				}
-			} catch (NumberFormatException e) {
-				System.out.println("FOUT:" + array[i]);
-			}
-
-		}
-		// Zoek grootste gemene deler met factor
-		/*
-		 * for(int i = (int) (factor-1); i> 0; i--) { if(GCD(factor, i) == i) {
-		 * table = i; break; } }
-		 */
-		System.out.println("Table: " + table);
-		return table;
-	}
-
-	public long GCD(long factor, long l) {
-		if (l == 0)
-			return factor;
-		return GCD(l, factor % l);
-	}
-	
-	
-	
 	
 	/**
 	 * Setup the aggregation levels supplied by the array
@@ -365,7 +262,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 			Statement st = con.createStatement();
 			long starttime = System.currentTimeMillis();
 			ResultSet rs = st.executeQuery(query);
-			System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + "): start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
+			System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + ")start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
 			while(rs.next()) {
 				Long timed = rs.getLong("timed");
 				Double average = rs.getDouble("average");

@@ -13,7 +13,7 @@ import org.jfree.data.time.Second;
 import org.jfree.data.xy.YIntervalSeries;
 
 
-public class JdbcYIntervalSeries extends YIntervalSeries {
+public class JdbcYIntervalSeriesJaldert extends YIntervalSeries {
 
 	private Connection con;
 	private String url;
@@ -239,5 +239,4 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 		}
 		this.fireSeriesChanged();
 	}
-
 }
