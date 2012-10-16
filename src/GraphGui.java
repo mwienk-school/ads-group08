@@ -48,15 +48,6 @@ public class GraphGui extends ApplicationFrame{
 
 		private XYDataset createPegelAndelfingen(){
 			YIntervalSeriesCollection timeseriescollection = new YIntervalSeriesCollection();
-			//			JdbcYIntervalSeries timeseries = new JdbcYIntervalSeries("Pegel Andelfingen",
-			//					"jdbc:mysql://silo1.ewi.utwente.nl:3306/group01",
-			//					"com.mysql.jdbc.Driver",
-			//					"group01", 
-			//					"sensor01",
-			//					"timed",
-			//					"PEGEL",
-			//					"pegel_andelfingen2",
-			//					null);
 			JdbcYIntervalSeries timeseries = new JdbcYIntervalSeries("Pegel Andelfingen2",
 					"jdbc:mysql://localhost:3306/group08",
 					"com.mysql.jdbc.Driver",
@@ -66,6 +57,7 @@ public class GraphGui extends ApplicationFrame{
 					"PEGEL",
 					"dataset_1",
 					null);
+			timeseries.setUpAggregation(new int[]{1,2,4,8,16});
 			Range range = timeseries.getDomainRange();
 			timeseries.update((new Double(range.getLowerBound())).longValue(), (new Double(range.getLength())).longValue());
 			timeseriescollection.addSeries(timeseries);

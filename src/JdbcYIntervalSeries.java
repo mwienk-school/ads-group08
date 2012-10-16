@@ -1,18 +1,18 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
+import java.sql.DatabaseMetaData;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.jfree.data.Range;
-import org.jfree.data.time.Second;
 import org.jfree.data.xy.YIntervalSeries;
-
 
 public class JdbcYIntervalSeries extends YIntervalSeries {
 
+	private static final long serialVersionUID = 7076927642023338578L;
 	private Connection con;
 	private String url;
 	private String driverName;
@@ -24,44 +24,15 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	private String constraint;
 	private double ds_start = 0;
 	private double ds_extent = 0;
+	private int[] aggregationLevels;
+	ArrayList<Integer> odd = new ArrayList<Integer>();
 
 	protected int MAX_RESOLUTION = 100;
 
-	public JdbcYIntervalSeries(Comparable key) {
-		super(key);
-	}
-
 	/**
-	 * Creates a new dataset (initially empty) using the specified database connection.
-	 * @param con
-	 */
-	public JdbcYIntervalSeries(Comparable key, Connection con){
-		super(key);
-		this.con=con;
-	}
-
-	/**
-	 * Creates a new dataset using the specified database connection, 
-	 * and populates it using data obtained with the supplied query. 
-	 * @param con
-	 * @param xAttribute
-	 * @param yAttribute
-	 * @param tableName
-	 * @param constraint
-	 */
-	public JdbcYIntervalSeries(Comparable key, Connection con, 
-			String xAttribute, String yAttribute, String tableName, String constraint){
-		super(key);
-		this.con = con;
-		this.xAttribute=xAttribute;
-		this.yAttribute = yAttribute;
-		this.tableName = tableName;
-		this.constraint = constraint;
-	}
-
-
-	/**
-	 * Creates a new dataset (initially empty) and establishes a new database connection. 
+	 * Creates a new dataset (initially empty) and establishes a new database
+	 * connection.
+	 * 
 	 * @param key
 	 * @param url
 	 * @param driverName
@@ -72,57 +43,64 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	 * @param tableName
 	 * @param constraint
 	 */
-	public JdbcYIntervalSeries(Comparable key, String url, String driverName, String user, String password,
-			String xAttribute, String yAttribute, String tableName, String constraint){
+	public JdbcYIntervalSeries(String key, String url, String driverName,
+			String user, String password, String xAttribute, String yAttribute,
+			String tableName, String constraint) {
 		super(key);
 		this.url = url;
 		this.driverName = driverName;
 		this.user = user;
 		this.password = password;
 		getConnection();
-		this.xAttribute=xAttribute;
+		this.xAttribute = xAttribute;
 		this.yAttribute = yAttribute;
 		this.tableName = tableName;
 		this.constraint = constraint;
+		for (int i = 1; i <= 1000; i++) {
+			if (i % 2 == 0)
+				odd.add(i);
+		}
+		this.getConnection();
 	}
 
 	/**
-	 * return an existing connection. If the connection does not exists a new connection 
-	 * is established.
+	 * return an existing connection. If the connection does not exists a new
+	 * connection is established.
+	 * 
 	 * @return connection object
 	 */
-	protected Connection getConnection(){
-		if(con==null)
+	protected Connection getConnection() {
+		if (con == null)
 			try {
-				//Register the JDBC driver for MySQL.
+				// Register the JDBC driver for MySQL.
 				Class.forName(driverName);
-				con = DriverManager.getConnection(url,user, password);
-			} catch(Exception e){
+				con = DriverManager.getConnection(url, user, password);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			return con;
+		return con;
 	}
 
 	/**
-	 * the range of the domain i.e. the x axis; 
-	 * this is the overall range and not the range of the displayed data 
+	 * the range of the domain i.e. the x axis; this is the overall range and
+	 * not the range of the displayed data
+	 * 
 	 * @return range of the x axis
 	 */
-	public Range getDomainRange(){
+	public Range getDomainRange() {
 		long maximumItemCount = 0;
 		long minimumItemCount = 0;
-		Connection con = getConnection();
-		if(con==null) return null;
 		Statement st;
 		try {
 			st = con.createStatement();
-			String query = "select min(`"+xAttribute+"`) as MIN ,max(`"+xAttribute+"`) as MAX from "+tableName;
-			if(constraint!=null && !constraint.isEmpty()) query+= " where "+constraint;
+			String query = "select min(`" + xAttribute + "`) as MIN ,max(`"
+					+ xAttribute + "`) as MAX from " + tableName;
+			if (constraint != null && !constraint.isEmpty())
+				query += " where " + constraint;
 			ResultSet rs = st.executeQuery(query);
 			rs.next();
-			minimumItemCount = rs.getLong(1);
-			maximumItemCount = rs.getLong(2);
-			//			update(minimumItemCount,maximumItemCount);
+			minimumItemCount = rs.getLong("MIN");
+			maximumItemCount = rs.getLong("MAX");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -130,24 +108,25 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	}
 
 	/**
-	 * the range of the y axis; 
-	 * this is the overall range and not the range of the displayed data 
+	 * the range of the y axis; this is the overall range and not the range of
+	 * the displayed data
+	 * 
 	 * @return range of the y axis
 	 */
-	public Range getYRange(){
-		double maximumItemCount = 0;
+	public Range getYRange() {
 		double minimumItemCount = 0;
-		Connection con = getConnection();
-		if(con==null) return null;
+		double maximumItemCount = 0;
 		Statement st;
 		try {
 			st = con.createStatement();
-			String query = "select min(`"+yAttribute+"`) as MIN ,max(`"+yAttribute+"`) from "+tableName;
-			if(constraint!=null && !constraint.isEmpty()) query+= " where "+constraint;
+			String query = "select min(`" + yAttribute + "`) as MIN ,max(`"
+					+ yAttribute + "`) from " + tableName;
+			if (constraint != null && !constraint.isEmpty())
+				query += " where " + constraint;
 			ResultSet rs = st.executeQuery(query);
 			rs.next();
-			maximumItemCount = rs.getDouble("MAX");
 			minimumItemCount = rs.getDouble("MIN");
+			maximumItemCount = rs.getDouble("MAX");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -155,63 +134,247 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	}
 
 	/**
-	 * specify the start and the extent of the data 
+	 * specify the start and the extent of the data
+	 * 
 	 * @param start
 	 * @param extent
 	 */
-	public void update(long start, long extent){
-		long factor = (long) Math.ceil(extent/MAX_RESOLUTION);
-		long ds_factor = (long) Math.ceil(ds_extent/MAX_RESOLUTION);
-		if (start < ds_start || start > ds_start+ds_extent || 
-				start+extent > ds_start+ds_extent ||
-				factor < ds_factor/2 || factor > ds_factor*2 ){
-			System.out.print("update with start, extent, factor, querytime: "+
-					start+","+extent+","+factor);
+//	public void update(long start, long extent) {
+//		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
+//		long ds_factor = (long) Math.ceil(ds_extent / MAX_RESOLUTION);
+//		if (start < ds_start || start > ds_start + ds_extent
+//				|| start + extent > ds_start + ds_extent
+//				|| factor < ds_factor / 2 || factor > ds_factor * 2) {
+//
+//			System.out.print("update with start, extent, factor, querytime: "
+//					+ start + "," + extent + "," + factor);
+//
+//			this.data.clear();
+//			Statement st;
+//			try {
+//				long res = factor % 10;
+//				factor = (res >= 5) ? factor + (10 - res) : factor - res;
+//				int table = getTable(factor);
+//				int ag = (int) ((int) (factor / table));
+//				String query = "select " + xAttribute + ",  avg(" + yAttribute
+//						+ "),min(" + yAttribute + "),max(" + yAttribute
+//						+ ") from dataset_ag_" + table + " where " + xAttribute
+//						+ ">=" + (start - extent) + " and " + xAttribute
+//						+ " <= " + (start + 2 * extent) + " group by "
+//						+ xAttribute + " div " + factor;
+//				st = con.createStatement();
+//				long starttime = System.currentTimeMillis();
+//				ResultSet rs = st.executeQuery(query);
+//				System.out.println("," + (System.currentTimeMillis() - starttime));
+//				System.out.println(query);
+//				long prevTime = 0;
+//				int j = 0;
+//				while (rs.next()) {
+//
+//					long timed = rs.getLong(1);
+//					double pegelAvg = rs.getDouble(2);
+//					double pegelLow = rs.getDouble(3);
+//					double pegelHigh = rs.getDouble(4);
+//					if (prevTime != timed) {
+//						j++;
+//						add(timed, pegelAvg, pegelLow, pegelHigh);
+//						// add(timed, pegelAvg, pegelLow, pegelHigh);
+//						// System.out.println(" "+timed_/table+" "+pegelAvg_/table+" "+
+//						// pegelLow_/table+" "+pegelHigh_/table);
+//						prevTime = timed;
+//					} else {
+//						System.out.println("removed duplicate data at timestampt " + timed);
+//					}
+//				}
+//				System.out.println("Punten: " + j);
+//			} catch (SQLException e) {
+//				e.printStackTrace();
+//			}
+//			this.ds_start = start - extent;
+//			this.ds_extent = start + 2 * extent;
+//		}
+//		this.fireSeriesChanged();
+//	}
+
+	public int getTable(long factor) {
+
+		// a ="1 2 7 13";
+		// array = a.split("\\s+");
+		// int[] array = { 100,200,300,400,500,600,700,800,900,1000};
+		int[] array = { 10, 12, 16, 20 };
+		int table = 0;
+		// long res = factor % 10;
+		// factor = (res>= 50) ? factor + (100-res) : factor - res;
+		// factor = (factor % 2 == 0) ? factor : factor + 1;
+		for (int i = array.length - 1; i >= 0; i--) {
 			try {
-				String insertQuery = "insert into factors (factor) values (?)";
-				PreparedStatement insertStatement = con.prepareStatement(insertQuery);
-				insertStatement.setLong(1, factor);
-				insertStatement.executeUpdate();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+
+				if (GCD(factor, array[i]) == array[i]) {
+					table = (int) array[i];
+					break;
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("FOUT:" + array[i]);
 			}
-			
-			this.data.clear();			
-			// load the data
-			Connection con = getConnection();
-			Object obj;
-			if(con==null) return; 
-			Statement st;
-			try {
-//				if (quantile==0){
-					// this corresponds to min and max
-					String query = "select "+xAttribute+", ID, avg("+yAttribute+"),min("+yAttribute+"),max("+yAttribute+") from "+tableName+" where "+xAttribute+">="+(start-extent)+" and "+xAttribute+" <= "+(start+2*extent)+" group by "+xAttribute+" div "+factor;
-					st = con.createStatement();
-					long starttime = System.currentTimeMillis();
-					ResultSet rs = st.executeQuery(query);
-					System.out.println(","+(System.currentTimeMillis()-starttime));
-					long prevTime=0;
-					while(rs.next()){
-						long timed = rs.getLong(1);
-						double pegelAvg = rs.getDouble(3);
-						double pegelLow = rs.getDouble(4);
-						double pegelHigh = rs.getDouble(5);
-						if(prevTime!=timed){
-							obj = new Second(new Date(timed));
-							add(timed, pegelAvg, pegelLow, pegelHigh);
-							prevTime= timed;
-						} else 
-							System.out.println("removed duplicate data at timestampt "+timed);
-					}
-//				} 
-				} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			this.ds_start = start-extent;
-			this.ds_extent = start+2*extent;
+
 		}
-		this.fireSeriesChanged();
+		// Zoek grootste gemene deler met factor
+		/*
+		 * for(int i = (int) (factor-1); i> 0; i--) { if(GCD(factor, i) == i) {
+		 * table = i; break; } }
+		 */
+		System.out.println("Table: " + table);
+		return table;
 	}
 
+	public long GCD(long factor, long l) {
+		if (l == 0)
+			return factor;
+		return GCD(l, factor % l);
+	}
+	
+	
+	
+	
+	/**
+	 * Setup the aggregation levels supplied by the array
+	 * @param levels
+	 */
+	public void setUpAggregation(int[] levels) {
+		aggregationLevels = levels;
+		Arrays.sort(aggregationLevels);
+		for(int i : levels) {
+			setUpAggregationTable(i, true);
+		}
+	}
+	
+	/**
+	 * Setup a new aggregation level table
+	 * @param level the aggregation level
+	 */
+	public void setUpAggregationTable(int level, boolean refresh) {
+		if(level < 2) return; // Don't aggregate on levels < 2
+		try {
+			System.out.println("AGGREGATION: creation of level " + level + " started");
+			Statement st;
+			st = con.createStatement();
+			
+			// Drop the existing table
+			if(!aggregationTableExists(level) || refresh) {
+				String query = "DROP TABLE IF EXISTS dataset_ag_" + level;
+				st.execute(query);
+			
+				// Create a new table
+				query = "CREATE TABLE dataset_ag_" + level + " (" +
+						"id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+						"" + xAttribute + " BIGINT," +
+						"" + yAttribute + "_AVG DOUBLE," +
+						"" + yAttribute + "_MIN DOUBLE," +
+						"" + yAttribute + "_MAX DOUBLE" +
+						")";
+				st.execute(query);
+				
+				// Fill the new table
+				query = "INSERT INTO dataset_ag_" + level + " (" +
+						 	xAttribute + "," + 
+						 	yAttribute + "_AVG," + 
+						 	yAttribute + "_MIN," + 
+						 	yAttribute + "_MAX) " +
+						"SELECT AVG(" + xAttribute + "), " +
+							   "AVG(" + yAttribute + "), " +
+							   "MIN(" + yAttribute + "), " +
+							   "MAX(" + yAttribute + ") " +
+						"FROM " + tableName + " " +
+						"GROUP BY " + xAttribute + " div " + level;
+				st.execute(query);
+				System.out.println("AGGREGATION: creation of level " + level + " finished");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * Checks if a table for the specified aggregation level exists
+	 * @param level
+	 * @return
+	 */
+	public boolean aggregationTableExists(int level) {
+		boolean result = false;
+		try {
+			DatabaseMetaData dbm = con.getMetaData();
+			ResultSet tables;
+			tables = dbm.getTables(null, null, "dataset_ag_" + level, null);
+			if(tables.next()) result = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * Return the best aggregation level
+	 * @param factor
+	 * @return
+	 */
+	public String getAggregationTableName(long factor) {
+		// aggregationLevels is sorted, loop the reversed array
+		for(int i = aggregationLevels.length - 1; i >= 0; i--) {
+			if(factor % aggregationLevels[i] == 0 && aggregationLevels[i] != 1) return "dataset_ag_" + aggregationLevels[i];
+		}
+		return null;
+	}
+	
+	
+	public void update(long start, long extent) {
+		// Decide which table to use
+		long factor = (long) Math.ceil(extent / MAX_RESOLUTION);
+		String aggregationTable = this.getAggregationTableName(factor);
+		System.out.println("Using table: " + aggregationTable);
+
+		// Query the table
+		String query = "";
+		if(aggregationTable != null) {
+			// Aggregation is available, use that table
+			query = "SELECT " + xAttribute + " as timed," +
+						yAttribute + "_AVG as average," +
+						yAttribute + "_MIN as minimum," + 
+						yAttribute + "_MAX as maximum " +
+					"FROM " + aggregationTable + " " + 
+					"WHERE " + 
+						xAttribute + " >= " + (start - extent) + " AND " + 
+						xAttribute + " <= " + (start + 2 * extent) + " " +
+					"GROUP BY " +
+						xAttribute + " div " + factor;
+		} else {
+			query = "SELECT " + xAttribute + " as timed,  " +
+						"AVG(" + yAttribute + ") as average," +
+						"MIN(" + yAttribute + ") as minimum," + 
+						"MAX(" + yAttribute + ") as maximum " +
+					"FROM " + tableName + " " + 
+					"WHERE " + 
+						xAttribute + " >= " + (start - extent) + " AND " + 
+						xAttribute + " <= " + (start + 2 * extent) + " " +
+					"GROUP BY " +
+						xAttribute + " div " + factor;
+		}
+		
+		// Add the results to the graph
+		try {
+			Statement st = con.createStatement();
+			long starttime = System.currentTimeMillis();
+			ResultSet rs = st.executeQuery(query);
+			System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + "): start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
+			while(rs.next()) {
+				Long timed = rs.getLong("timed");
+				Double average = rs.getDouble("average");
+				Double minimum = rs.getDouble("minimum");
+				Double maximum = rs.getDouble("maximum");
+				add(timed, average, minimum, maximum);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
