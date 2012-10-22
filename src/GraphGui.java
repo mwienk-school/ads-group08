@@ -60,14 +60,14 @@ public class GraphGui extends ApplicationFrame{
 					"dataset_1",
 					null);
 			Map<Integer,Integer> levels = new HashMap<Integer,Integer>();
-			levels.put(2,     500000);
-			levels.put(4,    1000000);
-			levels.put(8,    2500000);
-			levels.put(16,   5000000);
-			levels.put(32,  10000000);
-			levels.put(64,  50000000);
-			levels.put(128,100000000);
-			levels.put(256,150000000);
+			levels.put(2,      500000);
+			levels.put(4,     1000000);
+			levels.put(8,     2500000);
+			levels.put(16,    5000000);
+			levels.put(32,   10000000);
+			levels.put(64,   50000000);
+			levels.put(128, 100000000);
+			levels.put(256,1000000000);
 			timeseries.setUpAggregation(levels);
 			Range range = timeseries.getDomainRange();
 			timeseries.update((new Double(range.getLowerBound())).longValue(), (new Double(range.getLength())).longValue());

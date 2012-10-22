@@ -137,9 +137,11 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 	 */
 	public void setUpAggregation(Map<Integer,Integer> levels) {
 		aggregationLevels = levels;
+		long start = System.currentTimeMillis();
 		for(int i : aggregationLevels.keySet()) {
-			setUpAggregationTable(i, false);
+			setUpAggregationTable(i, true);
 		}
+		System.out.println("Total time for aggregation setup: " + (System.currentTimeMillis() - start));
 	}
 	
 	/**
@@ -161,12 +163,13 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 				// Create a new table
 				query = "CREATE TABLE dataset_ag_" + level + " (" +
 						"id INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
-						"" + xAttribute + " BIGINT," +
-						"" + yAttribute + "_AVG DOUBLE," +
-						"" + yAttribute + "_MIN DOUBLE," +
-						"" + yAttribute + "_MAX DOUBLE" +
+						"" + xAttribute + " BIGINT NOT NULL," +
+						"" + yAttribute + "_AVG DOUBLE NOT NULL," +
+						"" + yAttribute + "_MIN DOUBLE NOT NULL," +
+						"" + yAttribute + "_MAX DOUBLE NOT NULL" +
 						")";
 				st.execute(query);
+				st.executeUpdate("CREATE INDEX ag_" + level + "_index ON dataset_ag_" + level + "(" + xAttribute + ")");
 				
 				// Fill the new table
 				query = "INSERT INTO dataset_ag_" + level + " (" +
@@ -174,7 +177,7 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 						 	yAttribute + "_AVG," + 
 						 	yAttribute + "_MIN," + 
 						 	yAttribute + "_MAX) " +
-						"SELECT AVG(" + xAttribute + "), " +
+						"SELECT MIN(" + xAttribute + "), " +
 							   "AVG(" + yAttribute + "), " +
 							   "MIN(" + yAttribute + "), " +
 							   "MAX(" + yAttribute + ") " +
@@ -266,7 +269,8 @@ public class JdbcYIntervalSeries extends YIntervalSeries {
 			Statement st = con.createStatement();
 			long starttime = System.currentTimeMillis();
 			ResultSet rs = st.executeQuery(query);
-			System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + "): start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
+			//System.out.println("UPDATE (using " + (aggregationTable == null ? tableName : aggregationTable) + "): start, extent, factor, querytime: " + start + "," + extent + "," + factor + "," + (System.currentTimeMillis() - starttime));
+			System.out.println(System.currentTimeMillis() - starttime);
 			while(rs.next()) {
 				Long timed = rs.getLong("timed");
 				Double average = rs.getDouble("average");
